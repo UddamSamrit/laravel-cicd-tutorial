@@ -14,11 +14,11 @@ pipeline {
             steps {
                 sshagent(credentials: ['aws-ec2']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ec2-user@13.40.116.143 whoami
+                        ssh -o StrictHostKeyChecking=no ec2-user@54.179.133.20 whoami
                     '''
                 }
             }
-        }        
+        }
         stage("Clear all running docker containers") {
             steps {
                 script {
@@ -47,7 +47,7 @@ pipeline {
                     fileOperations([fileCopyOperation(excludes: '', flattenFiles: true, includes: '.env', targetLocation: "${WORKSPACE}")])
                 }
             }
-        }              
+        }
         stage("Run Tests") {
             steps {
                 sh 'docker compose run --rm artisan test'
@@ -71,7 +71,7 @@ pipeline {
                         echo 'Some file permissions could not be updated.'
                     }
                 }
-            }                                  
+            }
         }
         always {
             sh 'docker compose down --remove-orphans -v'
