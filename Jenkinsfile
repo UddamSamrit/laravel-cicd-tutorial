@@ -4,9 +4,9 @@ pipeline {
         stage("Verify tooling") {
             steps {
                 sh '''
-                    docker info
-                    docker version
-                    docker compose version
+                    /usr/local/bin/docker info
+                    /usr/local/bin/docker version
+                    /usr/local/bin/docker compose version
                 '''
             }
         }
@@ -14,7 +14,7 @@ pipeline {
             steps {
                 sshagent(credentials: ['aws-ec2']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ec2-user@54.179.133.20 whoami
+                        ssh -o StrictHostKeyChecking=no ec2-user@18.143.135.74 whoami
                     '''
                 }
             }
