@@ -14,7 +14,7 @@ pipeline {
             steps {
                 sshagent(credentials: ['aws-ec2']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ec2-user@18.143.135.74 whoami
+                        ssh -o StrictHostKeyChecking=no ubuntu@18.143.135.74 whoami
                     '''
                 }
             }
@@ -23,7 +23,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'docker rm -f $(docker ps -a -q)'
+                        sh '/usr/local/bin/docker rm -f $(docker ps -a -q)'
                     } catch (Exception e) {
                         echo 'No running container to clear up...'
                     }
@@ -33,12 +33,12 @@ pipeline {
         stage("Start Docker") {
             steps {
                 sh 'make up'
-                sh 'docker compose ps'
+                sh '/usr/local/bin/docker compose ps'
             }
         }
         stage("Run Composer Install") {
             steps {
-                sh 'docker compose run --rm composer install'
+                sh '/usr/local/bin/docker compose run --rm composer install'
             }
         }
         stage("Populate .env file") {
@@ -50,7 +50,7 @@ pipeline {
         }
         stage("Run Tests") {
             steps {
-                sh 'docker compose run --rm artisan test'
+                sh '/usr/local/bin/docker compose run --rm artisan test'
             }
         }
     }
@@ -74,8 +74,8 @@ pipeline {
             }
         }
         always {
-            sh 'docker compose down --remove-orphans -v'
-            sh 'docker compose ps'
+            sh '/usr/local/bin/docker compose down --remove-orphans -v'
+            sh '/usr/local/bin/docker compose ps'
         }
     }
 }
