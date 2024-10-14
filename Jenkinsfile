@@ -23,7 +23,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'docker rm -f $(docker ps -a -q)'
+                        sh '/usr/local/bin/docker rm -f $(docker ps -a -q)'
                     } catch (Exception e) {
                         echo 'No running container to clear up...'
                     }
@@ -33,7 +33,7 @@ pipeline {
         stage("Start Docker") {
             steps {
                 sh 'make up'
-                sh 'docker compose ps'
+                sh '/usr/local/bin/docker compose ps'
             }
         }
         stage("Run Composer Install") {
