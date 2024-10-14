@@ -4,9 +4,9 @@ pipeline {
         stage("Verify tooling") {
             steps {
                 sh '''
-                    /usr/local/bin/docker info
-                    /usr/local/bin/docker version
-                    /usr/local/bin/docker compose version
+                    docker info
+                    docker version
+                    docker compose version
                 '''
             }
         }
@@ -14,7 +14,7 @@ pipeline {
             steps {
                 sshagent(credentials: ['aws-ec2']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@18.143.135.74 whoami
+                        ssh -o StrictHostKeyChecking=no ec2-user@54.254.225.245 whoami
                     '''
                 }
             }
@@ -23,7 +23,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh '/usr/local/bin/docker rm -f $(docker ps -a -q)'
+                        sh 'docker rm -f $(docker ps -a -q)'
                     } catch (Exception e) {
                         echo 'No running container to clear up...'
                     }
@@ -33,7 +33,7 @@ pipeline {
         stage("Start Docker") {
             steps {
                 sh 'make up'
-                sh '/usr/local/bin/docker compose ps'
+                sh 'docker compose ps'
             }
         }
         stage("Run Composer Install") {
