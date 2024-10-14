@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'Server Node'
+    }
     stages {
         stage("Verify tooling") {
             steps {
