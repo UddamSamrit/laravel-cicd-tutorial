@@ -23,7 +23,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh '/usr/local/bin/docker rm -f $(docker ps -a -q)'
+                        sh 'docker rm -f $(docker ps -a -q)'
                     } catch (Exception e) {
                         echo 'No running container to clear up...'
                     }
@@ -33,12 +33,12 @@ pipeline {
         stage("Start Docker") {
             steps {
                 sh 'make up'
-                sh '/usr/local/bin/docker compose ps'
+                sh 'docker compose ps'
             }
         }
         stage("Run Composer Install") {
             steps {
-                sh '/usr/local/bin/docker compose run --rm composer install'
+                sh 'docker compose run --rm composer install'
             }
         }
         stage("Populate .env file") {
@@ -50,7 +50,7 @@ pipeline {
         }
         stage("Run Tests") {
             steps {
-                sh '/usr/local/bin/docker compose run --rm artisan test'
+                sh 'docker compose run --rm artisan test'
             }
         }
     }
@@ -60,13 +60,13 @@ pipeline {
             sh 'rm -rf artifact.zip'
             sh 'zip -r artifact.zip . -x "*node_modules**"'
             withCredentials([sshUserPrivateKey(credentialsId: "aws-ec2", keyFileVariable: 'keyfile')]) {
-                sh 'scp -v -o StrictHostKeyChecking=no -i ${keyfile} /var/lib/jenkins/workspace/LaravelTest/artifact.zip ec2-user@13.40.116.143:/home/ec2-user/artifact'
+                sh 'scp -v -o StrictHostKeyChecking=no -i ${keyfile} /var/lib/jenkins/workspace/LaravelTest/artifact.zip ubuntu@18.143.135.74:/home/ec2-user/artifact'
             }
             sshagent(credentials: ['aws-ec2']) {
-                sh 'ssh -o StrictHostKeyChecking=no ec2-user@13.40.116.143 unzip -o /home/ec2-user/artifact/artifact.zip -d /var/www/html'
+                sh 'ssh -o StrictHostKeyChecking=no ubuntu@18.143.135.74 unzip -o /home/ec2-user/artifact/artifact.zip -d /var/www/html'
                 script {
                     try {
-                        sh 'ssh -o StrictHostKeyChecking=no ec2-user@13.40.116.143 sudo chmod 777 /var/www/html/storage -R'
+                        sh 'ssh -o StrictHostKeyChecking=no ubuntu@18.143.135.74 sudo chmod 777 /var/www/html/storage -R'
                     } catch (Exception e) {
                         echo 'Some file permissions could not be updated.'
                     }
@@ -74,8 +74,8 @@ pipeline {
             }
         }
         always {
-            sh '/usr/local/bin/docker compose down --remove-orphans -v'
-            sh '/usr/local/bin/docker compose ps'
+            sh 'docker compose down --remove-orphans -v'
+            sh 'docker compose ps'
         }
     }
 }
