@@ -43,7 +43,7 @@ pipeline {
         }
         stage("Populate .env file") {
             steps {
-                dir("/var/lib/jenkins/workspace/envs/laravel-test") {
+                dir("/var/lib/jenkins/workspace/CI-CD-Pipeline") {
                     fileOperations([fileCopyOperation(excludes: '', flattenFiles: true, includes: '.env', targetLocation: "${WORKSPACE}")])
                 }
             }
@@ -56,17 +56,17 @@ pipeline {
     }
     post {
         success {
-            sh 'cd "/var/lib/jenkins/workspace/LaravelTest"'
+            sh 'cd "/var/lib/jenkins/workspace/CI-CD-Pipeline"'
             sh 'rm -rf artifact.zip'
             sh 'zip -r artifact.zip . -x "*node_modules**"'
             withCredentials([sshUserPrivateKey(credentialsId: "aws-ec2", keyFileVariable: 'keyfile')]) {
-                sh 'scp -v -o StrictHostKeyChecking=no -i ${keyfile} /var/lib/jenkins/workspace/LaravelTest/artifact.zip ubuntu@18.143.135.74:/home/ec2-user/artifact'
+                sh 'scp -v -o StrictHostKeyChecking=no -i ${keyfile} /var/lib/jenkins/workspace/CI-CD-Pipeline/artifact.zip ec2-user@54.254.225.245:/home/ec2-user/artifact'
             }
             sshagent(credentials: ['aws-ec2']) {
-                sh 'ssh -o StrictHostKeyChecking=no ubuntu@18.143.135.74 unzip -o /home/ec2-user/artifact/artifact.zip -d /var/www/html'
+                sh 'ssh -o StrictHostKeyChecking=no ec2-user@54.254.225.245 unzip -o /home/ec2-user/artifact/artifact.zip -d /var/www/html'
                 script {
                     try {
-                        sh 'ssh -o StrictHostKeyChecking=no ubuntu@18.143.135.74 sudo chmod 777 /var/www/html/storage -R'
+                        sh 'ssh -o StrictHostKeyChecking=no ec2-user@54.254.225.245 sudo chmod 777 /var/www/html/storage -R'
                     } catch (Exception e) {
                         echo 'Some file permissions could not be updated.'
                     }
